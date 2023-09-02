@@ -23,7 +23,7 @@ class Piece:
     
     def get_piece_moves(self, board):
         
-        return []
+        return [    ]
 
 
 
@@ -75,7 +75,7 @@ class Pawn(Piece):
             else:
 
                 if target_piece == None:
-                    target_cell.configure(bg="red")
+                    target_cell.configure(bg="green")
                     possible_moves.append(board_item)
                 else:
                     print("BREAKING")
@@ -85,7 +85,7 @@ class Pawn(Piece):
         print(possible_moves)
         
         return possible_moves
- 
+
 class Rook(Piece):
     
     def __init__(self, *args, **kwargs):
@@ -94,19 +94,259 @@ class Rook(Piece):
 
     def get_piece_moves(self, board):
         possible_moves = []
-        xcoordinate = self.coords[0]
-        ycoordinate = self.coords[1]
+        xcoordinate = self.coords[1]
+        ycoordinate = self.coords[0]
+        print(self.coords)
 
+        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
 
-        directions = [(0, 2), (0, 1), (1, 1), (-1, 1)]
-            
+        for dir in directions:
+            for _ in range(1, 8):
+                target_pos_x = xcoordinate + (dir[0] * _)
+                target_pos_y = ycoordinate + (dir[1] * _)
+
+                print([target_pos_x, target_pos_y])
+                if target_pos_x < 0 or target_pos_x > 7 or target_pos_y < 0 or target_pos_y > 7:
+                    break
+
+                board_item = board[target_pos_y][target_pos_x]
+
+                target_cell = board_item["cell"]
+                target_piece = board_item["piece"]
+
+                if target_piece == None:
+                    target_cell.configure(bg="green")
+                    possible_moves.append(board_item)
+                else:
+                    if target_piece.colour != self.colour:
+                        target_cell.configure(bg="red")
+                        possible_moves.append(board_item)
+                    break
+
+               
+
         return possible_moves
     
+
+class Bishop(Piece):
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.image_paths = ["images/bishop_w.png", "images/bishop_b.png"]
+
+    def get_piece_moves(self, board):
+        possible_moves = []
+        xcoordinate = self.coords[1]
+        ycoordinate = self.coords[0]
+        print(self.coords)
+
+        directions = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
+
+        for dir in directions:
+            for _ in range(1, 8):
+                target_pos_x = xcoordinate + (dir[0] * _)
+                target_pos_y = ycoordinate + (dir[1] * _)
+
+                print([target_pos_x, target_pos_y])
+                if target_pos_x < 0 or target_pos_x > 7 or target_pos_y < 0 or target_pos_y > 7:
+                    break
+
+                board_item = board[target_pos_y][target_pos_x]
+
+                target_cell = board_item["cell"]
+                target_piece = board_item["piece"]
+
+                if target_piece == None:
+                    target_cell.configure(bg="green")
+                    possible_moves.append(board_item)
+                else:
+                    if target_piece.colour != self.colour:
+                        target_cell.configure(bg="red")
+                        possible_moves.append(board_item)
+                    break
+
+               
+
+        return possible_moves
+
+
+class Knight(Piece):
+    
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.image_paths = ["images/knight_w.png", "images/knight_b.png"]
+
+
+    def get_piece_moves(self, board):
+        possible_moves = []
+        xcoordinate = self.coords[1]
+        ycoordinate = self.coords[0]
+        print(self.coords)
+
+        moves = [(2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (-1, 2), (-1, -2), (1, -2)]
+
+        for move in moves:
+    
+            target_pos_x = xcoordinate + move[1]
+            target_pos_y = ycoordinate + move[0]
+
+            print([target_pos_x, target_pos_y])
+
+            if target_pos_x < 0 or target_pos_x > 7 or target_pos_y < 0 or target_pos_y > 7:
+                continue
+
+            board_item = board[target_pos_y][target_pos_x]
+
+            target_cell = board_item["cell"]
+            target_piece = board_item["piece"]
+
+            if target_piece == None:
+                target_cell.configure(bg="green")
+                possible_moves.append(board_item)
+            else:
+                if target_piece.colour != self.colour:
+                    target_cell.configure(bg="red")
+                    possible_moves.append(board_item)
+                
+
+
+        return possible_moves
+    
+
+class Queen(Piece):
+
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.image_paths = ["images/queen_w.png", "images/queen_b.png"]
+
+    def get_piece_moves(self, board):
+        possible_moves = []
+        xcoordinate = self.coords[1]
+        ycoordinate = self.coords[0]
+        print(self.coords)
+
+        directions = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)]
+
+        for dir in directions:
+            for _ in range(1, 8):
+                target_pos_x = xcoordinate + (dir[0] * _)
+                target_pos_y = ycoordinate + (dir[1] * _)
+
+                print([target_pos_x, target_pos_y])
+                if target_pos_x < 0 or target_pos_x > 7 or target_pos_y < 0 or target_pos_y > 7:
+                    break
+
+                board_item = board[target_pos_y][target_pos_x]
+
+                target_cell = board_item["cell"]
+                target_piece = board_item["piece"]
+
+                if target_piece == None:
+                    target_cell.configure(bg="green")
+                    possible_moves.append(board_item)
+                else:
+                    if target_piece.colour != self.colour:
+                        target_cell.configure(bg="red")
+                        possible_moves.append(board_item)
+                    break
+
+               
+
+        return possible_moves
+
+
+class Queen(Piece):
+
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.image_paths = ["images/queen_w.png", "images/queen_b.png"]
+
+    def get_piece_moves(self, board):
+        possible_moves = []
+        xcoordinate = self.coords[1]
+        ycoordinate = self.coords[0]
+        print(self.coords)
+
+        directions = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)]
+
+        for dir in directions:
+            for _ in range(1, 8):
+                target_pos_x = xcoordinate + (dir[0] * _)
+                target_pos_y = ycoordinate + (dir[1] * _)
+
+                print([target_pos_x, target_pos_y])
+                if target_pos_x < 0 or target_pos_x > 7 or target_pos_y < 0 or target_pos_y > 7:
+                    break
+
+                board_item = board[target_pos_y][target_pos_x]
+
+                target_cell = board_item["cell"]
+                target_piece = board_item["piece"]
+
+                if target_piece == None:
+                    target_cell.configure(bg="green")
+                    possible_moves.append(board_item)
+                else:
+                    if target_piece.colour != self.colour:
+                        target_cell.configure(bg="red")
+                        possible_moves.append(board_item)
+                    break
+
+               
+
+        return possible_moves
+
+
+
+class King(Piece):
+
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.image_paths = ["images/king_w.png", "images/king_b.png"]
+
+    def get_piece_moves(self, board):
+        possible_moves = []
+        xcoordinate = self.coords[1]
+        ycoordinate = self.coords[0]
+        print(self.coords)
+
+        directions = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)]
+
+        for dir in directions:
+            target_pos_x = xcoordinate + dir[0]
+            target_pos_y = ycoordinate + dir[1]
+
+            print([target_pos_x, target_pos_y])
+            if target_pos_x < 0 or target_pos_x > 7 or target_pos_y < 0 or target_pos_y > 7:
+                continue
+
+            board_item = board[target_pos_y][target_pos_x]
+
+            target_cell = board_item["cell"]
+            target_piece = board_item["piece"]
+
+            if target_piece == None:
+                target_cell.configure(bg="green")
+                possible_moves.append(board_item)
+            else:
+                if target_piece.colour != self.colour:
+                    target_cell.configure(bg="red")
+                    possible_moves.append(board_item)
+                
+
+            
+
+        return possible_moves
 
 class ChessBoard:
 
     def __init__(self):
         self.board = self.generate_board()
+        self.highlighted_cells = []
 
     def __str__(self):
         
@@ -126,13 +366,44 @@ class ChessBoard:
 
                 
                 cell = tk.Button(window, text= j + (i*len(row)), image=None, bg=color, width=12, height=6, borderwidth=0, highlightthickness=0)
-
+                cell.configure(command= lambda i=i, j=j: self.handle_piece_click(board[i][j]))
                 cell.grid(row=i, column=j)
                 
+
                 board[i][j] = {"cell": cell, "piece": None} 
 
         return board
     
+    def handle_piece_click(self, board_item):
+        print(self.highlighted_cells)
+        for cell in self.highlighted_cells:
+            cell_details = cell["cell"].grid_info()
+            cellx = cell_details["column"]
+            celly = cell_details["row"]
+            cell = self.board[celly][cellx]
+
+            colour = "#eeeed2"
+            if (cellx+celly) % 2 == 0:
+                colour = "#769656"
+
+            print(cell)
+            self.board[celly][cellx]["cell"].configure(bg=colour)
+
+            
+        print(board_item)
+        piece = board_item["piece"]
+        print(piece)
+        print("firing")
+        if piece == None:
+            return
+         
+
+        moves = piece.get_piece_moves(self.board)
+        
+        self.highlighted_cells = moves
+        window.update()
+
+        return moves
     
     def setup_board(self):
 
@@ -153,25 +424,25 @@ class ChessBoard:
                 "row_coords": [0, 7],
                 "col_coords": [1, 6],
                 "img_paths": ["images/knight_w.png", "images/knight_b.png"],
-                "piece_class": Pawn
+                "piece_class": Knight
             },
             "B": {
                 "row_coords": [0, 7],
                 "col_coords": [2, 5],
                 "img_paths": ["images/bishop_w.png", "images/bishop_b.png"],
-                "piece_class": Pawn
+                "piece_class": Bishop
             },
             "Q": {
                 "row_coords": [0, 7],
                 "col_coords": [3],
                 "img_paths": ["images/queen_w.png", "images/queen_b.png"],
-                "piece_class": Pawn
+                "piece_class": Queen
             },
             "K": {
                 "row_coords": [0, 7], 
                 "col_coords": [4],
                 "img_paths": ["images/king_w.png", "images/king_b.png"],
-                "piece_class": Pawn
+                "piece_class": King
             },
         }
 
@@ -201,7 +472,7 @@ class ChessBoard:
                     piece_widget.image = img
                     piece_widget.width = 80
                     piece_widget.height = 80
-                    piece_widget.configure(image=img, width=90, height=90)
+                    piece_widget.configure(image=img, width=88, height=95)
 
                     self.board[row][col]["piece"] = piece
 
@@ -209,17 +480,41 @@ class ChessBoard:
 
         print(f"Setup took: {end_time - start_time} to complete")
 
+    def update_cell(self, cell, colour=None, piece=None):
 
+        if colour != None:
+            cell["cell"].configure(bg=colour)
+
+        cell["piece"] = piece
+
+        if piece != None:
+            image_abs_path = os.path.abspath(piece.image_paths[piece.colour == "B"])
+            img = tk.PhotoImage(file=image_abs_path)
+
+            piece_widget = cell["cell"]
+            piece_widget.image = img
+            piece_widget.configure(image=img, width=88, height=95)
+
+        window.update()
+    
+        
 
 Board = ChessBoard()
 Board.setup_board()
 
-Board.board[5][3]["piece"] = Pawn("P", (5, 3), "B")
-Board.board[5][3]["cell"].configure(bg="green")
 
+def test_setup():
 
-Board.board[6][4]["cell"].configure(bg="blue")
+    """ 
+    Board.board[5][2]["piece"] = Rook("R", (5, 2), "B")
+    Board.board[5][2]["cell"].configure(bg="Yellow")
 
-Board.board[6][4]["piece"].get_piece_moves(Board.board)
+     """
+
+    Board.update_cell(Board.board[5][3], piece=King("Q", (5, 3), "B"), colour="Blue")
+    Board.handle_piece_click(Board.board[5][3])
+
+    
+test_setup()
 
 window.mainloop()

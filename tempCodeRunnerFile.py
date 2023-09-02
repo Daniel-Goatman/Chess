@@ -1,1 +1,1 @@
-Board.board[5][3]["piece"] = Pawn("P", (5, 3), "B")
+king_w
