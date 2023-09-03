@@ -1,1 +1,1 @@
-king_w
+board_copy
