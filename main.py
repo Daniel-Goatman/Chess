@@ -596,6 +596,20 @@ class ChessBoard:
 
             board_copy[coords[0]][coords[1]]["piece"].coords = coords
 
+
+            board_str = ""
+
+            for row in board_copy:
+                row_str = ""
+                for cell in row:
+                    if cell["piece"] != None:
+                        row_str += cell["piece"].name
+                    else:
+                        row_str += "_"
+                board_str += row_str + "\n"
+
+            
+            print(board_str)
             king_check = self.is_king_in_check(board_copy, piece.colour)
             #print(f"King check: {king_check}")
             
@@ -619,8 +633,9 @@ class ChessBoard:
             "W": [],
             "B": []
         }
+        board_pieces = [cell["piece"] for row in board for cell in row if cell["piece"] != None]
+        for piece in board_pieces:
 
-        for piece in self.pieces:
             if piece.name == "P":
                 piece_possible_moves = piece.get_piece_moves_aggressive(board)
             else: 
@@ -665,6 +680,7 @@ class ChessBoard:
         self.board[coords[0]][coords[1]]["piece"] = piece
         self.occupy_cell(coords, piece)
 
+
     def is_king_in_check(self, board, colour):
 
         king = [item["piece"] for row in board for item in row if item["piece"] and item["piece"].name == "K" and item["piece"].colour == colour][0]
@@ -672,6 +688,8 @@ class ChessBoard:
         other_colour = "W"
         if colour == "W":
             other_colour = "B"
+    
+        
 
         opponent_aggressive_moves = self.register_moves(board)[other_colour]
 
@@ -683,7 +701,8 @@ class ChessBoard:
         [aggressive_moves.append(move) for move in all_aggressive_moves if move not in aggressive_moves]
 
         aggressive_moves.sort()
-
+        
+        print(aggressive_moves)
 
         if king.coords in aggressive_moves:
             print("King is in check!")
