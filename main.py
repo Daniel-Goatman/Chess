@@ -16,9 +16,8 @@ window = tk.Tk()
 
 class Piece:
 
-    def __init__(self, notation, coords, colour, owner=None):
+    def __init__(self, notation, colour, owner=None):
         self.name = notation
-        self.coords = coords
         self.colour = colour
         self.owner = owner
         self.image_paths = ["images/pawn_w.png", "images/pawn_b.png"]
@@ -28,46 +27,6 @@ class Piece:
         else:
             self.direction = 1
 
-
-    def move_piece(self, board, coords):
-        valid_moves = self.get_piece_moves(board.board)
-        
-        
-        if coords in valid_moves:
-            
-            if board.board[coords[0]][coords[1]]["piece"] != None:
-
-                will_result_in_check = board.will_result_in_check(self, coords)
-                print(f"Will result in check: {will_result_in_check}")
-                if will_result_in_check:
-                    return False
-                else:
-                    #print(f"Moving from {self.coords} to {coords}")
-
-                    #print(board.board[coords[0]][coords[1]]["piece"].id)
-                    #print(board.board[self.coords[0]][self.coords[1]]["piece"])#it's own cell is already empty!!??!??
-
-                    board.remove_piece(coords)
-
-
-                    board.move_piece(self, coords)
-
-                    #TODO adjust owner params
-                    self.coords = coords
-                    return True
-                
-            else:
-                will_result_in_check = board.will_result_in_check(self, coords)
-                print(f"Will result in check: {will_result_in_check}")
-                #print(f"Will result in check: {will_result_in_check}")
-                if will_result_in_check:
-                    return False
-                else:
-                    board.move_piece(self, coords)
-                    self.coords = coords
-                    return True                
-        
-        return False
         
 
     def get_piece_moves(self, board, display=False):
@@ -81,11 +40,11 @@ class Pawn(Piece):
         super().__init__(*args, **kwargs)
         self.first_move = True
 
-    def get_piece_moves_aggressive(self, board, display=False):
+    def get_piece_moves_aggressive(self, board, coords, display=False):
 
         possible_moves = []
-        xcoordinate = self.coords[1]
-        ycoordinate = self.coords[0]
+        xcoordinate = coords[1]
+        ycoordinate = coords[0]
 
 
         directions = [(1, 1), (-1, 1)]
@@ -102,8 +61,9 @@ class Pawn(Piece):
    
 
             target_cell = board_item["cell"]
-            target_piece = board_item["piece"]
 
+            if board_item["piece"] != None and board_item["piece"].colour == self.colour:
+                continue
 
 
             if display:    
@@ -113,11 +73,12 @@ class Pawn(Piece):
 
         return possible_moves
 
-    def get_piece_moves(self, board, display=False):
+
+    def get_piece_moves(self, board, coords, display=False):
 
         possible_moves = []
-        xcoordinate = self.coords[1]
-        ycoordinate = self.coords[0]
+        xcoordinate = coords[1]
+        ycoordinate = coords[0]
 
 
         directions = [(1, 1), (-1, 1), (0, 1), (0, 2)]
@@ -171,10 +132,10 @@ class Rook(Piece):
         super().__init__(*args, **kwargs)
         self.image_paths = ["images/rook_w.png", "images/rook_b.png"]
 
-    def get_piece_moves(self, board, display=False):
+    def get_piece_moves(self, board, coords, display=False):
         possible_moves = []
-        xcoordinate = self.coords[1]
-        ycoordinate = self.coords[0]
+        xcoordinate = coords[1]
+        ycoordinate = coords[0]
 
 
         directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
@@ -216,11 +177,11 @@ class Bishop(Piece):
         super().__init__(*args, **kwargs)
         self.image_paths = ["images/bishop_w.png", "images/bishop_b.png"]
 
-    def get_piece_moves(self, board, display=False):
+    def get_piece_moves(self, board, coords, display=False):
         possible_moves = []
-        xcoordinate = self.coords[1]
-        ycoordinate = self.coords[0]
-
+        xcoordinate = coords[1]
+        ycoordinate = coords[0]
+        
         directions = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
 
         for dir in directions:
@@ -263,12 +224,11 @@ class Knight(Piece):
         self.image_paths = ["images/knight_w.png", "images/knight_b.png"]
 
 
-    def get_piece_moves(self, board, display=False):
+    def get_piece_moves(self, board, coords, display=False):
         possible_moves = []
-        xcoordinate = self.coords[1]
-        ycoordinate = self.coords[0]
-
-
+        xcoordinate = coords[1]
+        ycoordinate = coords[0]
+        
         moves = [(2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (-1, 2), (-1, -2), (1, -2)]
 
         for move in moves:
@@ -308,11 +268,11 @@ class Queen(Piece):
         super().__init__(*args, **kwargs)
         self.image_paths = ["images/queen_w.png", "images/queen_b.png"]
 
-    def get_piece_moves(self, board, display=False):
+    def get_piece_moves(self, board, coords, display=False):
         possible_moves = []
-        xcoordinate = self.coords[1]    
-        ycoordinate = self.coords[0]
-
+        xcoordinate = coords[1]
+        ycoordinate = coords[0]
+        
         directions = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)]
 
         for dir in directions:
@@ -355,12 +315,11 @@ class King(Piece):
         super().__init__(*args, **kwargs)
         self.image_paths = ["images/king_w.png", "images/king_b.png"]
                     
-
-    def get_piece_moves(self, board, display=False, board_class=None):
+    def get_piece_moves(self, board, coords, display=False):
         possible_moves = []
-        xcoordinate = self.coords[1]
-        ycoordinate = self.coords[0]
-
+        xcoordinate = coords[1]
+        ycoordinate = coords[0]
+        
 
         directions = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)]
 
@@ -381,16 +340,14 @@ class King(Piece):
 
             if target_piece == None:
                         
-                if board_class and board_class.will_result_in_check(self, coordinates):
-                    continue
+
                 if display:
                     target_cell.configure(bg="green")
                 possible_moves.append(coordinates)
             else:
                 if target_piece.colour != self.colour:
                                     
-                    if board_class and board_class.will_result_in_check(self, coordinates):
-                        continue
+
                     if display:
                         target_cell.configure(bg="red")
                     possible_moves.append(coordinates)
@@ -402,14 +359,15 @@ class King(Piece):
 
 class ChessBoard:
 
-    def __init__(self):
+    def __init__(self, GameManager):
         self.board = self.generate_board()
         self.test_board = []
         self.highlighted_cells = []
         self.test_highlighted_cells = []
         self.pieces = []
-        self.selected_piece = None
-
+        self.GameManager = GameManager
+        self.current_player = self.GameManager.players[0]
+        self.other_player = self.GameManager.players[1]
 
     def __str__(self):
         
@@ -438,7 +396,7 @@ class ChessBoard:
         return board
     
 
-    def setup_board(self, game_manager):
+    def setup_board(self):
 
         piece_layout = {
             "P": {
@@ -493,7 +451,7 @@ class ChessBoard:
                 for col in piece_layout[piece_key]["col_coords"]:
 
 
-                    piece = piece_class(piece_key, [row, col], piece_colour)
+                    piece = piece_class(piece_key, piece_colour)
 
                     img_path = piece.image_paths[1]
                     if piece.colour == "W":
@@ -509,12 +467,47 @@ class ChessBoard:
                     self.board[row][col]["piece"] = piece
 
         self.pieces = [cell["piece"] for row in self.board for cell in row if cell["piece"] != None]
-        print(self.pieces)
+        self.GameManager.setup_players(self)
+
+
         end_time = time.time()
         print(f"Setup took: {end_time - start_time} to complete")
 
 
+    def get_piece_coords(self, piece, board=None):
+        if board == None:
+            board = self.board
+        for i, row in enumerate(board):
+            for j, item in enumerate(row):
+                if item["piece"] == piece: 
+                    return [i, j]
+                
+        return None
+
+
+    def move_piece(self, piece, target_coords):
+        piece_coords = self.get_piece_coords(piece)
+        piece_moves = piece.get_piece_moves(self.board, piece_coords)
+
+        if target_coords in piece_moves:
+
+            if self.will_result_in_check(piece, target_coords):
+                return False
+            
+            if self.board[target_coords[0]][target_coords[1]]["piece"] != None:
+                self.remove_piece(target_coords)
+
+            self.occupy_cell(target_coords, piece)
+
+            self.clear_cell(piece_coords)
+            return True
+
+
     def handle_piece_click(self, coords):
+        
+        if not self.current_player:
+            return
+        
 
         board_item = self.board[coords[0]][coords[1]]
 
@@ -540,32 +533,48 @@ class ChessBoard:
         
         if piece == None: # Clicked on an empty cell
             
-            if self.selected_piece != None:
+            if self.current_player.selected_piece != None:
+                
+                
+                success = self.move_piece(self.current_player.selected_piece, coords)
 
-                result = self.selected_piece.move_piece(self, coords)
-                self.selected_piece = None
-                return result
+                print(f"succes: {success}")
+                self.current_player.selected_piece = None
+                if(success):
+                
+                    self.current_player.end_turn()
+                    self.other_player = self.current_player
+                    self.GameManager.switch_player()
+                return
                 
             else: 
 
-                return False
+                return
             
         else: # Clicked on a piece
-            if self.selected_piece != None:
-                if self.selected_piece.colour != piece.colour:
-                    result = self.selected_piece.move_piece(self, coords)
-                    print(result)
-                    self.selected_piece = None
-                    return result
+            if self.current_player.selected_piece != None:
+                if self.current_player.selected_piece.colour != piece.colour:
+                    piece_coords = self.get_piece_coords(self.current_player.selected_piece)
+                    success = self.move_piece(self.current_player.selected_piece, coords)
+                    if(success):
+                        self.current_player.selected_piece = None
 
-            self.selected_piece = piece
+                        self.current_player.end_turn()
+                        self.other_player = self.current_player
+                        self.GameManager.switch_player()
+                    return
+
+            if self.current_player.colour != piece.colour:
+                return
+            
+            self.current_player.selected_piece = piece
 
 
 
             if piece.name == "K":
-                moves = piece.get_piece_moves(self.board, display=True, board_class=self)
+                moves = piece.get_piece_moves(self.board, self.get_piece_coords(piece), display=True)
             else:
-                moves = piece.get_piece_moves(self.board, display=True)
+                moves = piece.get_piece_moves(self.board, self.get_piece_coords(piece), display=True)
 
             self.highlighted_cells = moves
             window.update()
@@ -573,12 +582,13 @@ class ChessBoard:
             return False
         
 
-    def will_result_in_check(self, piece, coords):
+    def will_result_in_check(self, piece, target_coords):
 
-        current_piece_cell = self.board[piece.coords[0]][piece.coords[1]]
+        piece_coords = self.get_piece_coords(piece)
+        current_piece_cell = self.board[piece_coords[0]][piece_coords[1]]
         
-        coords_cache = piece.coords.copy()
-        def test_move(piece, coords):
+        
+        def test_move(piece, current_coords, target_coords): #Generates a copy of the board and tests the move on it
             board_copy = []
             for row in self.board:
                 row_copy = []
@@ -590,11 +600,21 @@ class ChessBoard:
 
                 board_copy.append(row_copy)
 
-            print(f"Piece coords: {piece.coords}")
-            board_copy[piece.coords[0]][piece.coords[1]]["piece"] = None
-            board_copy[coords[0]][coords[1]]["piece"] = piece
+            print(f"Piece coords: {current_coords}")
+            board_copy[current_coords[0]][current_coords[1]]["piece"] = None
+            board_copy[target_coords[0]][target_coords[1]]["piece"] = piece
 
-            board_copy[coords[0]][coords[1]]["piece"].coords = coords
+            #print board
+            board_str = ""
+            for row in board_copy:
+                for cell in row:
+                    if cell["piece"] != None:
+                        board_str += cell["piece"].name
+                    else:
+                        board_str += "_"
+                board_str += "\n"
+            print(board_str)
+
 
 
             board_str = ""
@@ -617,8 +637,8 @@ class ChessBoard:
             return king_check
         
 
-        in_check = test_move(piece, coords)
-        piece.coords = coords_cache.copy()
+        in_check = test_move(piece, piece_coords, target_coords)
+
         
         return in_check
         
@@ -637,9 +657,9 @@ class ChessBoard:
         for piece in board_pieces:
 
             if piece.name == "P":
-                piece_possible_moves = piece.get_piece_moves_aggressive(board)
+                piece_possible_moves = piece.get_piece_moves_aggressive(board, self.get_piece_coords(piece))
             else: 
-                piece_possible_moves = piece.get_piece_moves(board)
+                piece_possible_moves = piece.get_piece_moves(board, self.get_piece_coords(piece))
 
             if len(piece_possible_moves) > 0:
                 aggressive_moves[piece.colour].append({piece.id: piece_possible_moves})
@@ -656,7 +676,7 @@ class ChessBoard:
     
     def occupy_cell(self, cell_coords, piece):
         cell = self.board[cell_coords[0]][cell_coords[1]]
-
+        self.board[cell_coords[0]][cell_coords[1]]["piece"] = piece
         image_abs_path = os.path.abspath(piece.image_paths[piece.colour == "B"])
         img = tk.PhotoImage(file=image_abs_path)
 
@@ -671,14 +691,12 @@ class ChessBoard:
         piece = self.board[coords[0]][coords[1]]["piece"]
         
         self.pieces.remove(piece)
+
+        self.other_player.pieces.remove(piece)
         self.clear_cell(coords)
         return
 
     
-    def move_piece(self, piece, coords):
-        self.clear_cell(piece.coords)
-        self.board[coords[0]][coords[1]]["piece"] = piece
-        self.occupy_cell(coords, piece)
 
 
     def is_king_in_check(self, board, colour):
@@ -704,7 +722,8 @@ class ChessBoard:
         
         print(aggressive_moves)
 
-        if king.coords in aggressive_moves:
+        king_coords = self.get_piece_coords(king, board)
+        if king_coords in aggressive_moves:
             print("King is in check!")
             return True
         
@@ -715,52 +734,78 @@ class ChessBoard:
         
 class Player:
 
-    def __init__(self, colour, pieces, board):
+    def __init__(self, colour):
         self.colour = colour
-        self.pieces = pieces
-        self.board = board
-    
-    def take_turn(self, piece, coords):
-        pass
-    
-    def capture_piece(self, piece):
-        pass
-    
-    def check_for_check(self):
-        pass
+        self.pieces = []
+        self.selected_piece = None
+        self.board = None
+        self.turn_complete = False
+
+    def take_turn(self):
+        if self.board.is_king_in_check(self.board.board, self.colour):
+            print("King is in check!!!!!!!!!!!!!!!!!")
+            checkmate = True
+            for piece in self.pieces:
+                piece_moves = piece.get_piece_moves(self.board.board, self.board.get_piece_coords(piece))
+                for move in piece_moves:
+                    if not self.board.will_result_in_check(piece, move):
+                        print(f"Move: {move} by {piece} will not result in check")
+                        checkmate = False
+                        break
+                if not checkmate:
+                    break
+
+            if checkmate:
+                print("Checkmate!")
+                return
+            else:
+                print("no checkmate!")
+
+
+        self.turn_complete = False
+        self.board.current_player = self
+        print(f"{self.colour} player's turn")
+
+    def end_turn(self):
+        self.turn_complete = True
+
 
 
 class Game:
 
     
-    def __init__(self):
-        self.players = []
-        self.current_player = 0
+    def __init__(self, players):
+        self.players = players
+        self.current_player = players[0]
+
+
+    def setup_players(self, board):
+        for player in self.players:
+            player.board = board
+            player.pieces = [piece for piece in board.pieces if piece.colour == player.colour]
+            
+        self.current_player.take_turn()
+
 
     def switch_player(self):
-        self.current_player = (self.current_player + 1) % len(self.players)
-    
-
-    def game_loop(self):
-        player_had_turn = False
-        while not player_had_turn:
-            player_had_turn = self.players[self.current_player].take_turn()
-            self.switch_player()
-    
-
-    
-
-GameManager = Game()
+        self.current_player = self.players[(self.players.index(self.current_player) + 1) % len(self.players)]
+        self.current_player.take_turn()
+        
 
 
-Board = ChessBoard()
-Board.setup_board(GameManager)
 
-p1 = Player("W", [cell["piece"] for row in Board.board for cell in row if cell["piece"] != None and cell["piece"].colour == "W"], Board)
-p2 = Player("B", [cell["piece"] for row in Board.board for cell in row if cell["piece"] != None and cell["piece"].colour == "B"], Board)
 
-GameManager.players = [p1, p2]
+p1 = Player("W")
+p2 = Player("B")
+ 
+GameManager = Game([p1, p2])
 
+
+Board = ChessBoard(GameManager)
+Board.setup_board()
+
+
+Game
 def test_setup():
 
     """ 
@@ -781,6 +826,4 @@ def test_setup():
 test_setup()
 
 
-
 window.mainloop()
-
