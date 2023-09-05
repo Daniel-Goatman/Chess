@@ -364,7 +364,7 @@ class King(Piece):
                 continue
             rook_position = board[xcoordinate + (dir * 2) + offset][ycoordinate]
 
-            if rook_position["piece"] and rook_position["piece"].first_move: # rook is in place and hasn't moved
+            if rook_position["piece"] and rook_position["piece"].first_move: # rook is in place and hasn't moved TODO first move check aint working
 
                 empty_spaces = True
                 for _ in range(1, 2):
@@ -385,6 +385,9 @@ class King(Piece):
 
             else:
                 continue
+
+
+        window.update()
         return possible_moves
 
 
