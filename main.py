@@ -20,6 +20,7 @@ class Piece:
         self.name = notation
         self.colour = colour
         self.owner = owner
+        self.first_move = True
         self.image_paths = ["images/pawn_w.png", "images/pawn_b.png"]
         self.id = f"{self.colour}_{self.name}_{uuid4()}"
         if self.colour == "W":
@@ -36,9 +37,6 @@ class Piece:
 
 
 class Pawn(Piece):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.first_move = True
 
     def get_piece_moves_aggressive(self, board, coords, display=False):
 
@@ -316,6 +314,7 @@ class King(Piece):
         self.image_paths = ["images/king_w.png", "images/king_b.png"]
                     
     def get_piece_moves(self, board, coords, display=False):
+        
         possible_moves = []
         xcoordinate = coords[1]
         ycoordinate = coords[0]
@@ -353,7 +352,39 @@ class King(Piece):
                     possible_moves.append(coordinates)
                 
 
+        
 
+        #castling check
+        directions = [-1, 1]
+
+        for dir in directions:
+            offset = dir == -1
+
+            if xcoordinate + (dir * 2) + offset < 0 or xcoordinate + (dir * 2) + offset > 7:
+                continue
+            rook_position = board[xcoordinate + (dir * 2) + offset][ycoordinate]
+
+            if rook_position["piece"] and rook_position["piece"].first_move: # rook is in place and hasn't moved
+
+                empty_spaces = True
+                for _ in range(1, 2):
+                    target_cell = board[ycoordinate][xcoordinate + (dir * _)]
+                    
+                    if target_cell['piece'] != None:
+                        empty_spaces = False
+                        break
+
+                if empty_spaces:
+                    print(f"Valid move to {[ycoordinate, xcoordinate + (dir * 2)]}")
+                    
+
+                    if display:
+                        target_cell["cell"].configure(bg="green")
+                        print(f'target cell: {target_cell}')
+                    possible_moves.append([ycoordinate, xcoordinate + (dir * 2)])
+
+            else:
+                continue
         return possible_moves
 
 
@@ -497,6 +528,7 @@ class ChessBoard:
             if self.board[target_coords[0]][target_coords[1]]["piece"] != None:
                 self.remove_piece(target_coords)
 
+            piece.first_move = False
             self.occupy_cell(target_coords, piece)
 
             self.clear_cell(piece_coords)
