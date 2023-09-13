@@ -314,7 +314,7 @@ class King(Piece):
         self.image_paths = ["images/king_w.png", "images/king_b.png"]
                     
     def get_piece_moves(self, board, coords, display=False):
-        
+
         possible_moves = []
         xcoordinate = coords[1]
         ycoordinate = coords[0]
@@ -352,42 +352,64 @@ class King(Piece):
                     possible_moves.append(coordinates)
                 
 
+        window.update()
+        return possible_moves
+
+    def get_piece_moves_with_castling(self, board, coords, display=False):
+
+        possible_moves = self.get_piece_moves(board, coords, display=display)
+
+        xcoordinate = coords[1]
+        ycoordinate = coords[0]
         
 
         #castling check
         directions = [-1, 1]
 
         for dir in directions:
+            print(f"dir: {dir}")
+            if not self.first_move:
+                break
+
+
             offset = dir == -1
 
-            if xcoordinate + (dir * 2) + offset < 0 or xcoordinate + (dir * 2) + offset > 7:
+            if xcoordinate + (dir * (3 + offset)) < 0 or xcoordinate + (dir * (3 + offset)) > 7:
+
                 continue
-            rook_position = board[xcoordinate + (dir * 2) + offset][ycoordinate]
 
-            if rook_position["piece"] and rook_position["piece"].first_move: # rook is in place and hasn't moved TODO first move check aint working
 
-                empty_spaces = True
-                for _ in range(1, 2):
+            rook_position = board[ycoordinate][xcoordinate + (dir * (3 + offset))]
+
+            if rook_position["piece"] and rook_position["piece"].first_move:
+                
+                clear_route = True
+                for _ in range(1, 3):
+                    print(f"_ = {_}")
                     target_cell = board[ycoordinate][xcoordinate + (dir * _)]
                     
                     if target_cell['piece'] != None:
-                        empty_spaces = False
+                        clear_route = False
+                        #print(f"{(ycoordinate, xcoordinate)} occupied by {target_cell['piece'].id}")
                         break
 
-                if empty_spaces:
-                    print(f"Valid move to {[ycoordinate, xcoordinate + (dir * 2)]}")
+                if clear_route:
                     
-
+                    target_cell = board[ycoordinate][xcoordinate + (dir * 2)]
+                    #print(target_cell)
                     if display:
                         target_cell["cell"].configure(bg="green")
-                        print(f'target cell: {target_cell}')
+
+                        #print(f'target cell: {xcoordinate+(dir * 2)}')
                     possible_moves.append([ycoordinate, xcoordinate + (dir * 2)])
 
             else:
+                print("skipping")
                 continue
 
 
         window.update()
+        print(possible_moves)
         return possible_moves
 
 
@@ -420,7 +442,7 @@ class ChessBoard:
                     color = "#eeeed2"   
 
                 
-                cell = tk.Button(window, text= j + (i*len(row)), image=None, bg=color, width=EMPTY_CELL_WIDTH, height=EMPTY_CELL_HEIGHT, borderwidth=0, highlightthickness=0)
+                cell = tk.Button(window, image=None, bg=color, width=EMPTY_CELL_WIDTH, height=EMPTY_CELL_HEIGHT, borderwidth=0, highlightthickness=0)
                 cell.configure(command= lambda i=i, j=j: self.handle_piece_click([i, j]))
                 cell.grid(row=i, column=j)
                 
@@ -509,6 +531,8 @@ class ChessBoard:
 
 
     def get_piece_coords(self, piece, board=None):
+
+        print(f"Piece first move: {piece.first_move}")
         if board == None:
             board = self.board
         for i, row in enumerate(board):
@@ -519,15 +543,33 @@ class ChessBoard:
         return None
 
 
-    def move_piece(self, piece, target_coords):
+    def move_piece(self, piece, target_coords, should_validate_move=True):
+        print(f"Moving {piece} to {target_coords}")
         piece_coords = self.get_piece_coords(piece)
+
+    
         piece_moves = piece.get_piece_moves(self.board, piece_coords)
+        print(piece_moves)
 
-        if target_coords in piece_moves:
+        if should_validate_move:
+            if target_coords in piece_moves:
+                print("target position in piece moves")
+                if self.will_result_in_check(piece, target_coords):
+                    return False
+                
+                if self.board[target_coords[0]][target_coords[1]]["piece"] != None:
+                    self.remove_piece(target_coords)
 
-            if self.will_result_in_check(piece, target_coords):
+                piece.first_move = False
+                self.occupy_cell(target_coords, piece)
+
+                self.clear_cell(piece_coords)
+                return True
+            else:
+                print("target position not in piece moves")
                 return False
-            
+        else:
+
             if self.board[target_coords[0]][target_coords[1]]["piece"] != None:
                 self.remove_piece(target_coords)
 
@@ -570,8 +612,42 @@ class ChessBoard:
             
             if self.current_player.selected_piece != None:
                 
+                if self.current_player.selected_piece.name == "K":
+                    king_moves = self.current_player.selected_piece.get_piece_moves_with_castling(self.board, self.get_piece_coords(self.current_player.selected_piece))
+
+                    if not coords in king_moves:
+                        return
+                    
+                    king_location_x = self.get_piece_coords(self.current_player.selected_piece)[1]
+                    #check if it is moving 2 spaces (castling)
+                    if abs(coords[1] - king_location_x) == 2:
+                        print("Moving king 2 spaces")
+                        print(f"king location x is {king_location_x}, and coords[1] is {coords[1]}")
+                        if king_location_x > coords[1]:
+                            rook = self.board[coords[0]][0]["piece"]
+                            rook_target_coords = [coords[0], coords[1] + 1]
+                        else:
+                            rook = self.board[coords[0]][7]["piece"]
+                            rook_target_coords = [coords[0], coords[1] - 1]
+
+
+                        success = self.move_piece(rook, rook_target_coords)
+
+                        if success:
+                            success = self.move_piece(self.current_player.selected_piece, coords, should_validate_move=False)
+                        else:
+                            print("Failed to move rook!!!")
+                        
+                    else:
+                        print("Moving king 1 space")
+
+                        success = self.move_piece(self.current_player.selected_piece, coords)
+                else:
+                    success = self.move_piece(self.current_player.selected_piece, coords)
+
+
+
                 
-                success = self.move_piece(self.current_player.selected_piece, coords)
 
                 print(f"succes: {success}")
                 self.current_player.selected_piece = None
@@ -607,7 +683,8 @@ class ChessBoard:
 
 
             if piece.name == "K":
-                moves = piece.get_piece_moves(self.board, self.get_piece_coords(piece), display=True)
+                moves = piece.get_piece_moves_with_castling(self.board, self.get_piece_coords(piece), display=True)
+                print(f"getting king moves: {moves}")
             else:
                 moves = piece.get_piece_moves(self.board, self.get_piece_coords(piece), display=True)
 
